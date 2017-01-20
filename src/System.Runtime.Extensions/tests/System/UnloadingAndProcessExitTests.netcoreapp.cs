@@ -33,5 +33,37 @@ namespace System.Tests
 
             Assert.Equal(File.ReadAllText(fileName), "u0u1e0e1");
         }
+
+        [Fact]
+        public void myTest()
+        {
+            bool crashed = false;
+
+            Func<int> otherProcess = () =>
+            {
+                EventHandler onProcessExit = (e, sender) =>
+                {
+                    throw new Exception();
+                };
+
+                AppDomain.CurrentDomain.ProcessExit += onProcessExit;
+
+                return SuccessExitCode;
+            };
+
+            try
+            {
+                using (var remote = RemoteInvoke(otherProcess))
+                {
+                }
+            }
+            catch (Exception)
+            {
+                crashed = true;
+            }
+
+            //if (!crashed)
+                //Assert.Equal(1, 2);
+        }
     }
 }
